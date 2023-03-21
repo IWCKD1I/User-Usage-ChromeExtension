@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Data Collection Extension",
+    "description": "This extension collects data from the user's browsing activity.",
+    "version": "1.0",
+    "permissions": [
+        "activeTab",
+        "storage",
+        "tabs",
+        "idle"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_icon": "img.png",
+        "default_popup": "popup.html"
+    }
+}
