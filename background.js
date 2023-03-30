@@ -13,7 +13,10 @@ socket.addEventListener('open', () => {
     var time = getTime();
     chrome.tabs.query({ active: true, currentWindow: true }, function(tab) {
         domain = tab[0].url.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
-        socket.send("First Started using " + domain + " at : " + time);
+        socket.send(JSON.stringify({
+            domain: domain,
+            StartTime: time
+        }));
         PreviousTab = domain;
         DeadSocket = 0;
     });
@@ -38,7 +41,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
         var time = getTime();
         if (tab.active && domain != "" && DeadSocket === 0) {
             PreviousTab = domain;
-            socket.send("Started using " + domain + " at : " + time);
+            socket.send(JSON.stringify({
+                domain: domain,
+                StartTime: time
+            }));
         }
     });
 
@@ -52,7 +58,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         var time = getTime();
         if (tab.active && domain != "") {
             PreviousTab = domain;
-            socket.send("Started using " + domain + " at : " + time);
+            socket.send(JSON.stringify({
+                domain: domain,
+                StartTime: time
+            }));
         }
     }
 });
@@ -61,18 +70,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //Assure that client stopped using the domain after closing the window
 chrome.windows.onRemoved.addListener((WId) => {
     var time = getTime();
-    socket.send("Stopped using " + PreviousTab + " at : " + time);
-    socket.send(WId + "Closed");
+    socket.send(JSON.stringify({
+        domain: PreviousTab,
+        StartTime: time
+    }));
 });
 
 
-chrome.windows.onCreated.addListener(function(window) {
-    const socket = new WebSocket('ws://localhost:3000');
-    if (window.type === "normal") {
-        const socket = new WebSocket('ws://localhost:3000');
-        socket.send("New window created with ID: " + window.id);
-    }
-});
 
 
 chrome.windows.onFocusChanged.addListener(function(windowId) {
@@ -85,7 +89,10 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
         var time = getTime();
         chrome.tabs.query({ active: true, currentWindow: true }, function(tab) {
             domain = tab[0].url.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
-            socket.send("Started using " + domain + " at : " + time);
+            socket.send(JSON.stringify({
+                domain: domain,
+                StartTime: time
+            }));
             PreviousTab = domain;
         });
     }
